@@ -16,6 +16,7 @@ class Decoder(nn.Module):
         self.deconv3 = self.deconv2Layer(128, 96)
         self.deconv4 = self.deconv2Layer(96, 64)
         self.deconv5 = self.deconv2Layer(64, 48)
+        self.deconv6 = self.deconv2Layer(48, 48)
         self.pixelconv = nn.Conv2d(48, opt.outViewN * 4, kernel_size=1, stride=1)
 
         X, Y = np.meshgrid(range(self.opt.outW), range(self.opt.outH), indexing="xy")  # [H,W]
@@ -32,12 +33,12 @@ class Decoder(nn.Module):
 
     def deconv2Layer(self, in_channels, out_channels):
         conv = nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=2,
-                                  padding=1, output_padding=1)
+                                  padding=1, output_padding=1,bias=True)
         batchnorm = nn.BatchNorm2d(num_features=out_channels)
         return nn.Sequential(conv, batchnorm)
 
     def linearLayer(self, in_features, out_features):
-        fc = nn.Linear(in_features=in_features, out_features=out_features)
+        fc = nn.Linear(in_features=in_features, out_features=out_features,bias=True)
         batchnorm = nn.BatchNorm1d(num_features=out_features)
         return nn.Sequential(fc, batchnorm)
 
@@ -52,6 +53,7 @@ class Decoder(nn.Module):
         feat = F.relu(self.deconv3(feat))
         feat = F.relu(self.deconv4(feat))
         feat = F.relu(self.deconv5(feat))
+        feat = F.relu(self.deconv6(feat))
         feat = self.pixelconv(feat)+self.biasInit
         XYZ, maskLogit = torch.split(feat, [self.opt.outViewN * 3, self.opt.outViewN], dim=1)
         return XYZ, maskLogit
