@@ -1,0 +1,14 @@
+/data
+.idea
+Testing.ipynb
+.ipynb_checkpoints
+__pycache__
+lightning_logs
+train_pranav.py
+
+*.npy
+*.ipynb
+train_1.py
+saves
+
+outputs
